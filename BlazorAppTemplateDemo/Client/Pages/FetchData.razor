@@ -2,7 +2,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using BlazorAppTemplateDemo.Shared
-@attribute [Authorize]
+@attribute [Authorize(Roles ="Admin")]
 @inject HttpClient Http
 
 <PageTitle>Weather forecast</PageTitle>
@@ -38,6 +38,20 @@ else
             }
         </tbody>
     </table>
+
+    <AuthorizeView>
+            @if(context.User.IsInRole("Admin"))
+            {
+            <h2>User is role admin</h2>
+            }
+    
+        <ul>
+            @foreach ( var item in context.User.Claims)
+        {
+            <li>Type: @item.Type, Value: @item.Value</li>
+        }
+        </ul>
+    </AuthorizeView>
 }
 
 @code {
