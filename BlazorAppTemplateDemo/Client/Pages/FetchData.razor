@@ -2,8 +2,10 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using BlazorAppTemplateDemo.Shared
+@using System.Security.Claims;
 @attribute [Authorize(Roles ="Admin")]
 @inject HttpClient Http
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Weather forecast</PageTitle>
 
@@ -39,6 +41,8 @@ else
         </tbody>
     </table>
 
+    <h2>@user.Identity.Name</h2>
+
     <AuthorizeView>
             @if(context.User.IsInRole("Admin"))
             {
@@ -55,10 +59,12 @@ else
 }
 
 @code {
+    private ClaimsPrincipal user;
     private WeatherForecast[]? forecasts;
 
     protected override async Task OnInitializedAsync()
     {
+        user = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User;
         try
         {
             forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
