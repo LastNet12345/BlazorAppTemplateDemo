@@ -33,6 +33,7 @@ namespace BlazorAppTemplateDemo.Server.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = userManager.Users.FirstOrDefault(u => u.Id == userId);
 
+            //ToDo Fix this!
            // var user = await userManager.GetUserAsync(User);
 
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
