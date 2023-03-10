@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using BlazorAppTemplateDemo.Server.Services;
 
 namespace BlazorAppTemplateDemo
 {
@@ -20,19 +22,32 @@ namespace BlazorAppTemplateDemo
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = true;
+                options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier;
+
+            
+            })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            builder.Services.Configure<IdentityOptions>(options =>
-                 options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier);
+
 
             builder.Services.AddIdentityServer()
                 .AddApiAuthorization<ApplicationUser, ApplicationDbContext>(options =>
             {
                 options.IdentityResources["openid"].UserClaims.Add("role");
+              //  options.IdentityResources["openid"].UserClaims.Add("sub");
                 options.ApiResources.Single().UserClaims.Add("role");
+               // options.ApiResources.Single().UserClaims.Add("sub");
             });
+
+          //  JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+          //  JwtSecurityTokenHandler.DefaultMapInboundClaims = true; //.DefaultInboundClaimTypeMap.Add("sub", ClaimTypes.NameIdentifier);
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove("role");
+
+            builder.Services.AddTransient<IClaimsTransformation, AddSubTransformation>();
 
             builder.Services.AddAuthentication()
                 .AddIdentityServerJwt();
